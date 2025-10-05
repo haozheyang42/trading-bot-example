@@ -10,8 +10,8 @@ async def trade_handler():
 async def main():
     ## change these lines for only the markets you want
     await haorzhe.start_client(
-        account="10b0f98a-da5d-4c21-928f-6d8821333f11",
-        api_key="b940f11f-5662-46e0-af58-d9ba446d7337",
+        account="",
+        api_key="",
         domain="Oracle"
     )
 
