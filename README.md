@@ -2,54 +2,50 @@
 
 First, make a virtual environment:
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
 Then, activate the environment: 
 ```bash 
-source venv/bin/activate
+source .venv/bin/activate
 ```
 Or on Windows (Powershell):
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
-To install the package to easily make games, run the following:
+To install the python sdk package, run the following:
 ```bash
-pip install huqtoracleclient==0.4.0
+pip install huqt_oracle_pysdk
 ```
 
-To write a handler for events that are streamed from the exchange server, fill out these functions:
+Run the file by:
+```bash
+python example.py
+```
+
+## Useful Read States Endpoints (all sync):
 ```python
-def handle_md_update(self, data):
-    ...
-    
-def handle_open_orders_update(self, data):
-    ...
-
-def handle_positions_update(self, data):
-    ...
-
-def handle_fill_update(self, data):
-    ...
-
-def handle_recent_fills(self, data):
-    ...
-
-def handle_exchange_status_update(self, data):
-    ...
+def get_self_open_orders(self) -> dict[str, list]:
+def get_self_open_auction_orders(self) -> dict[str, list]:
+def get_self_positions(self) -> dict[str, int]:
+def get_self_recent_fills(self) -> list[dict]:
+def get_book(self) -> dict[str, dict[str, int]]:
+def get_recent_trades(self) -> dict[str, list]:
+def get_oracle_metadata(self) -> dict[str, list]:
+def get_domain_metadata(self) -> dict:
+def get_self_pending_orders(self) -> dict[str, tuple[int, dict]]:
+def get_self_pending_requests(self) -> dict[str, tuple[int, str, dict]]:
+def get_issued_options_quantity(self, is_global: bool = False) -> dict[str, int]:
 ```
 
-To send and cancel orders, call these functions:
+## Useful Write States Endpoints (all sync):
 ```python
-def submit_order(self, symbol: str, logging: str, size: int, price: int, side: OrderSide, tif: OrderTif) -> Response:
-    
-def cancel_order(self, order_id: str) -> Response:
-
-def cancel_orders(self, order_ids: List[str]) -> ResponseList:
+async def place_limit_order(self, market: str, side: int, price: int, size: int, tif: int):
+async def place_market_order(self, market: str, side: int, collateral: int):
+async def place_auction_order(self, market: str, price: int):
+async def deposit(self, symbol: str, amount: int):
+async def withdraw(self, symbol: str, amount: int):
+async def convert(self, conversion: str, size: int):
+async def issue_option(self, name, size):
+async def exercise_option(self, name, size):
 ```
-
-You are allowed to add some logging to your order submission - you can view the information you logged in your open orders. Please note that currently you are only allowed at most 100 characters of logging.
-
-Important Notes:
-* all prices are in cents (integer number of cents)
-* the lower_bound and upper_bound are in floats, so that they can equal +-infinity

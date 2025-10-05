@@ -1,44 +1,33 @@
+from huqt_oracle_pysdk import OracleClient, Side, Tif
 import asyncio
-from huqt_oracle_client import AdvancedTrader
-import time
+haorzhe = OracleClient()
 
-class MyTrader(AdvancedTrader):
-    def __init__(self, account, api_key, url, secure = True):
-        super().__init__(account, api_key, url, secure)
+async def trade_handler():
+    print("\n\033[1;32m-------- Below are the logs for user algorithm --------\033[0m")
+    print(haorzhe.get_self_positions())
+    await haorzhe.place_limit_order("110", Side.Buy, 200, 1, Tif.Gtc)
 
-    def handle_md_update(self, data):
-        print(data)
-    
-    def handle_open_orders_update(self, data):
-        print(data)
-    
-    def handle_positions_update(self, data):
-        print(data)
-    
-    def handle_fill_update(self, data):
-        print(data)
-    
-    def handle_recent_fills(self, data):
-        print(data)
-    
-    def handle_exchange_status_update(self, data):
-        print(data)
-    
-async def listen(t: MyTrader):
-    await t.listen()
-
-async def trade(t: MyTrader):
-    while True:
-        await asyncio.sleep(1)
-    
 async def main():
-    ACCOUNT = ""
-    API_KEY = ""
-    EXCHANGE_URL = ""
-    t = MyTrader(ACCOUNT, API_KEY, EXCHANGE_URL, secure=True)
-    listener_task = asyncio.create_task(listen(t))
-    trade_task = asyncio.create_task(trade(t))
-    await asyncio.gather(listener_task, trade_task)
-if __name__ == '__main__':
+    ## change these lines for only the markets you want
+    await haorzhe.start_client(
+        account="10b0f98a-da5d-4c21-928f-6d8821333f11",
+        api_key="b940f11f-5662-46e0-af58-d9ba446d7337",
+        domain="Oracle"
+    )
+
+    await haorzhe.subscribe_market("110")
+
+    ## DO NOT CHANGE BELOW THIS LINE
+    task = asyncio.create_task(trade_handler())
+    try:
+        # CTRL-C to stop
+        await asyncio.Event().wait()
+    except:
+        pass
+    finally:
+        task.cancel()
+        await haorzhe.stop_client()
+        print("\033[1;31mOracleClient stopped. See ya next time...\033[0m\n")
+
+if __name__ == "__main__":
     asyncio.run(main())
-    # main()
